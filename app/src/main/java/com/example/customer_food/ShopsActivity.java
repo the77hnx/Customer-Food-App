@@ -46,6 +46,8 @@ public class ShopsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_shops);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_shops);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Change this based on the activity
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -56,11 +58,11 @@ public class ShopsActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.navigation_following) {
                     // Show toast indicating following action
-                    Toast.makeText(ShopsActivity.this, "لم تتابع أي شيء بعد", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(ShopsActivity.this, OrderSummaryActivity.class ));
                     return true;
                 } else if (itemId == R.id.navigation_basket) {
                     // Navigate to OrderSummaryActivity
-                    startActivity(new Intent(ShopsActivity.this, OrderSummaryActivity.class));
+                    startActivity(new Intent(ShopsActivity.this, HistoryOrdersActivity.class));
                     return true;
                 } else if (itemId == R.id.navigation_profile) {
                     // Navigate to ProfileActivity

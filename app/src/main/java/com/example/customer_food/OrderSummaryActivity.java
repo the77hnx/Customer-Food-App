@@ -47,6 +47,8 @@ public class OrderSummaryActivity extends AppCompatActivity {
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_os);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_following); // Change this based on the activity
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -57,11 +59,11 @@ public class OrderSummaryActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.navigation_following) {
                     // Show toast indicating following action
-                    Toast.makeText(OrderSummaryActivity.this, "لم تتابع أي شيء بعد", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(OrderSummaryActivity.this, OrderSummaryActivity.class ));
                     return true;
                 } else if (itemId == R.id.navigation_basket) {
                     // Navigate to OrderSummaryActivity
-                    startActivity(new Intent(OrderSummaryActivity.this, OrderSummaryActivity.class));
+                    startActivity(new Intent(OrderSummaryActivity.this, HistoryOrdersActivity.class));
                     return true;
                 } else if (itemId == R.id.navigation_profile) {
                     // Navigate to ProfileActivity
@@ -71,7 +73,6 @@ public class OrderSummaryActivity extends AppCompatActivity {
                 return false;
             }
         });
-
 
         Intent intent = getIntent();
         if (intent != null) {

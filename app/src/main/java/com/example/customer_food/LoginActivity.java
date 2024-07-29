@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     // Navigate to OTP page (replace with your OTP activity)
-                    Intent intent = new Intent(LoginActivity.this, OtpActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, LocationActivity.class);
                     startActivity(intent);
                     finish(); // Finish current activity to prevent back button from returning here
                 } else {

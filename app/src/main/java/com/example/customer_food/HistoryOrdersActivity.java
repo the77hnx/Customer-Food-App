@@ -35,7 +35,12 @@ public class HistoryOrdersActivity extends AppCompatActivity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_history_orders);
+
+
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_ho);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_basket); // Change this based on the activity
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -46,11 +51,11 @@ public class HistoryOrdersActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.navigation_following) {
                     // Show toast indicating following action
-                    Toast.makeText(HistoryOrdersActivity.this, "لم تتابع أي شيء بعد", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(HistoryOrdersActivity.this, OrderSummaryActivity.class ));
                     return true;
                 } else if (itemId == R.id.navigation_basket) {
                     // Navigate to OrderSummaryActivity
-                    startActivity(new Intent(HistoryOrdersActivity.this, OrderSummaryActivity.class));
+                    startActivity(new Intent(HistoryOrdersActivity.this, HistoryOrdersActivity.class));
                     return true;
                 } else if (itemId == R.id.navigation_profile) {
                     // Navigate to ProfileActivity
