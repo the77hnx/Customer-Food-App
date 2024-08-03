@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+
 }
 
 android {
@@ -44,7 +46,7 @@ dependencies {
     implementation libs.gson
     implementation libs.material.v1120
     implementation libs.viewpager2
-
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
     implementation libs.core
     implementation libs.support.compat
     implementation libs.core

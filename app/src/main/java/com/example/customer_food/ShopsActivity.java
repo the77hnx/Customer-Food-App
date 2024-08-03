@@ -58,8 +58,8 @@ public class ShopsActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.navigation_following) {
                     // Show toast indicating following action
-                    startActivity(new Intent(ShopsActivity.this, OrderSummaryActivity.class ));
-                    return true;
+                    Toast.makeText(ShopsActivity.this, "لم تتابع اي شيء بعد", Toast.LENGTH_SHORT).show();
+                    return false;
                 } else if (itemId == R.id.navigation_basket) {
                     // Navigate to OrderSummaryActivity
                     startActivity(new Intent(ShopsActivity.this, HistoryOrdersActivity.class));

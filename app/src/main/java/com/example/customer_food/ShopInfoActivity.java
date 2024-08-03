@@ -49,6 +49,8 @@ public class ShopInfoActivity extends AppCompatActivity {
         share = findViewById(R.id.button);
         totalPriceButton = findViewById(R.id.totalPriceButton);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_sinfo);
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Change this based on the activity
+
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -57,17 +59,13 @@ public class ShopInfoActivity extends AppCompatActivity {
                     // Navigate to ShopsActivity
                     startActivity(new Intent(ShopInfoActivity.this, ShopsActivity.class));
                     return true;
-                } else if (itemId == R.id.navigation_following) {
-                    // Show toast indicating following action
-                    Toast.makeText(ShopInfoActivity.this, "لم تتابع أي شيء بعد", Toast.LENGTH_SHORT).show();
-                    return true;
                 } else if (itemId == R.id.navigation_basket) {
                     // Navigate to OrderSummaryActivity
                     startActivity(new Intent(ShopInfoActivity.this, OrderSummaryActivity.class));
                     return true;
-                } else if (itemId == R.id.navigation_profile) {
+                } else if (itemId == R.id.navigation_orders) {
                     // Navigate to ProfileActivity
-                    startActivity(new Intent(ShopInfoActivity.this, ProfileActivity.class));
+                    startActivity(new Intent(ShopInfoActivity.this, HistoryOrdersActivity.class));
                     return true;
                 }
                 return false;

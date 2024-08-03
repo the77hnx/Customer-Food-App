@@ -40,6 +40,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
+
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView_ho"-->
+
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/toolbar">-->
+
+<!--            <include layout="@layout/frag_add_remove"/>-->
+<!--            <include layout="@layout/frag_add_remove"/>-->
+
+
+
+
+<!--        </LinearLayout>-->
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewforordersummary"
             android:layout_width="match_parent"
@@ -123,6 +143,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_navigation_menu" />
+        app:menu="@menu/info_bttom_nav_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

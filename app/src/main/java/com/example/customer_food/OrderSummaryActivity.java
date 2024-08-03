@@ -47,7 +47,7 @@ public class OrderSummaryActivity extends AppCompatActivity {
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_os);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_following); // Change this based on the activity
+        bottomNavigationView.setSelectedItemId(R.id.navigation_basket); // Change this based on the activity
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -57,17 +57,13 @@ public class OrderSummaryActivity extends AppCompatActivity {
                     // Navigate to ShopsActivity
                     startActivity(new Intent(OrderSummaryActivity.this, ShopsActivity.class));
                     return true;
-                } else if (itemId == R.id.navigation_following) {
-                    // Show toast indicating following action
-                    startActivity(new Intent(OrderSummaryActivity.this, OrderSummaryActivity.class ));
-                    return true;
                 } else if (itemId == R.id.navigation_basket) {
                     // Navigate to OrderSummaryActivity
-                    startActivity(new Intent(OrderSummaryActivity.this, HistoryOrdersActivity.class));
+                    startActivity(new Intent(OrderSummaryActivity.this, OrderSummaryActivity.class));
                     return true;
-                } else if (itemId == R.id.navigation_profile) {
+                } else if (itemId == R.id.navigation_orders) {
                     // Navigate to ProfileActivity
-                    startActivity(new Intent(OrderSummaryActivity.this, ProfileActivity.class));
+                    startActivity(new Intent(OrderSummaryActivity.this, HistoryOrdersActivity.class));
                     return true;
                 }
                 return false;

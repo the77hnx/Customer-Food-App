@@ -49,6 +49,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar">
 
+
+
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="horizontal"-->
+<!--            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView_ho"-->
+
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/toolbar">-->
+
+<!--            <include layout="@layout/frag_cat"/>-->
+<!--            <include layout="@layout/frag_cat"/>-->
+<!--            <include layout="@layout/frag_cat"/>-->
+<!--            <include layout="@layout/frag_cat"/>-->
+<!--            <include layout="@layout/frag_cat"/>-->
+<!--            <include layout="@layout/frag_cat"/>-->
+
+
+
+
+<!--        </LinearLayout>-->
+
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/popularRestaurantsRecyclerViewhor"
             android:layout_width="match_parent"
@@ -77,6 +103,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+
+
+
+
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:orientation="vertical"-->
+<!--            app:layout_constraintBottom_toTopOf="@id/bottomNavigationView_ho"-->
+
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/toolbar">-->
+
+<!--            <include layout="@layout/frag_shop_info"/>-->
+<!--            <include layout="@layout/frag_shop_info"/>-->
+<!--            <include layout="@layout/frag_shop_info"/>-->
+<!--            <include layout="@layout/frag_shop_info"/>-->
+
+
+
+<!--        </LinearLayout>-->
+<!--        -->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/popularRestaurantsRecyclerViewver"

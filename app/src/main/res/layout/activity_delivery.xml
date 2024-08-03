@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:layoutDirection="rtl"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layoutDirection="rtl"
     tools:context=".DeliveryActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -34,68 +33,68 @@
 
     <TextView
         android:id="@+id/namerestaurant"
+        style="@style/TextAppearance.AppCompat.Large"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        android:layout_marginTop="20dp"
-        style="@style/TextAppearance.AppCompat.Large"
-        android:textColor="@color/pink"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="10dp"
-        android:text="المطعم : ملك البروتين"
-        android:gravity="start"
         android:fontFamily="@font/hacen_beirut_bight"
-        android:textSize="25sp" />
+        android:gravity="start"
+        android:text="المطعم : ملك البروتين"
+        android:textColor="@color/pink"
+        android:textSize="25sp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <TextView
         android:id="@+id/pos_score_ml"
-        app:layout_constraintTop_toBottomOf="@id/namerestaurant"
         android:layout_width="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="عدد الأطباق : 3 أطباق"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:gravity="start"
         android:fontFamily="@font/hacen_beirut_bight"
-        android:textSize="25sp"
+        android:gravity="start"
+        android:text="عدد الأطباق : 3 أطباق"
         android:textColor="@color/grey"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/namerestaurant" />
 
     <TextView
         android:id="@+id/productPriceTextView_del"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:fontFamily="@font/hacen_beirut_bight"
+        android:gravity="start"
         android:text="سعر الطلب : 250 دج"
         android:textColor="@color/grey"
+        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pos_score_ml"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="start"
-        android:fontFamily="@font/hacen_beirut_bight"
-        android:textSize="25sp"/>
+        app:layout_constraintTop_toBottomOf="@id/pos_score_ml" />
 
     <TextView
         android:id="@+id/deliveryPriceTextView_del"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:fontFamily="@font/hacen_beirut_bight"
+        android:gravity="start"
         android:text="سعر التوصيل : 50 دج"
         android:textColor="@color/grey"
+        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/productPriceTextView_del"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:gravity="start"
-        android:fontFamily="@font/hacen_beirut_bight"
-        android:textSize="25sp"/>
+        app:layout_constraintTop_toBottomOf="@id/productPriceTextView_del" />
 
     <TextView
         android:id="@+id/totalPriceTextView_del"
@@ -126,32 +125,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/totalPriceTextView_del">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
-            <TextView
-                android:id="@+id/textAdditionalInfo"
-                android:layout_width="0dp"
+            android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:fontFamily="@font/hacen_beirut_bight"
-                android:text="أقرب نقطة (ملاحظة للسائق)"
-                android:textColor="@color/black"
-                android:textSize="22sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/iconAdditional"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:orientation="horizontal"
+                android:padding="6dp">
 
-            <ImageView
-                android:id="@+id/iconAdditional"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:padding="2dp"
-                android:src="@drawable/ic_info"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <ImageView
+                    android:id="@+id/iconAdditional"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="2dp"
+                    android:src="@drawable/ic_info" />
 
+                <TextView
+                    android:id="@+id/textAdditionalInfo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/hacen_beirut_bight"
+                    android:text="أقرب نقطة (ملاحظة للسائق)"
+                    android:textColor="@color/black"
+                    android:textSize="22sp" />
+
+            </LinearLayout>
 
 
             <EditText
@@ -161,15 +168,71 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/field_border"
                 android:fontFamily="@font/hacen_beirut_bight"
-                android:padding="6dp"
                 android:hint="تفاصيل إضافية هنا..."
+                android:padding="6dp"
                 android:text=""
                 android:textColor="@color/grey"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textAdditionalInfo" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:textSize="20sp" />
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:background="@color/grey" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="6dp">
+
+                <ImageView
+                    android:id="@+id/iconAdditional1"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="2dp"
+                    android:src="@drawable/ic_info" />
+
+                <TextView
+                    android:id="@+id/textAdditionalInfo1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/hacen_beirut_bight"
+                    android:text="ملاحظة لصاحب المحل"
+                    android:textColor="@color/black"
+                    android:textSize="22sp" />
+
+            </LinearLayout>
+
+
+            <EditText
+                android:id="@+id/textAdditionalDescription1"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/field_border"
+                android:fontFamily="@font/hacen_beirut_bight"
+                android:hint="تفاصيل إضافية هنا..."
+                android:padding="6dp"
+                android:text=""
+                android:textColor="@color/grey"
+                android:textSize="20sp" />
+
+
+        </LinearLayout>
+        </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
     <Button
@@ -177,10 +240,10 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:gravity="center"
         android:layout_marginTop="24dp"
         android:background="@drawable/tomato_button"
         android:fontFamily="@font/hacen_beirut_bight"
+        android:gravity="center"
         android:text="تأكيد الطلب"
         android:textColor="@color/black"
         android:textSize="25sp"

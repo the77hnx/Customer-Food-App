@@ -38,6 +38,7 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
         holder.foodPrice.setText(String.valueOf(foodItem.getPrice()));
         holder.foodCount.setText(String.valueOf(foodItem.getCount()));
 
+
         holder.addButton.setOnClickListener(v -> {
             foodItem.incrementCount();
             holder.foodCount.setText(String.valueOf(foodItem.getCount()));
