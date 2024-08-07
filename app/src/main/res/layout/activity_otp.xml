@@ -16,25 +16,6 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:layout_marginTop="80dp"
-            android:layout_marginEnd="25dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_otp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:text="OTP"
-            android:textColor="@color/black"
-            android:textSize="40sp"
-            android:textStyle="bold"
-            android:fontFamily="@font/hacen_beirut_bight"
-            />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
