@@ -30,6 +30,10 @@ public class OrderSummaryActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ArrayList<FoodItem> foodItems;
     private OrderSummaryAdapter adapter;
+    private String restaurantName;
+    private String restaurantEvaluation;
+    private String restaurantLocation;
+    private String value;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,20 +74,14 @@ public class OrderSummaryActivity extends AppCompatActivity {
             }
         });
 
+
         Intent intent = getIntent();
         if (intent != null) {
             foodItems = intent.getParcelableArrayListExtra("filteredItems");
-        }
-
-        if (foodItems == null) {
-            foodItems = new ArrayList<>();
-            // You can add some default items here if needed
-            foodItems.add(new FoodItem("pizza", 10.0, 1));
-            foodItems.add(new FoodItem("burger", 20, 2));
-            foodItems.add(new FoodItem("takos", 30, 3));
-            foodItems.add(new FoodItem("pizza", 10.0, 1));
-            foodItems.add(new FoodItem("burger", 20, 2));
-            foodItems.add(new FoodItem("takos", 30, 3));
+            restaurantName = intent.getStringExtra("restaurantName");
+            restaurantEvaluation = intent.getStringExtra("restaurantEvaluation");
+            restaurantLocation = intent.getStringExtra("restaurantLocation");
+            value = intent.getStringExtra("val");
         }
 
         // Set up RecyclerView
@@ -95,11 +93,13 @@ public class OrderSummaryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(OrderSummaryActivity.this, DeliveryActivity.class);
-                intent.putExtra("restaurantName", "ملك البروتين"); // Replace with your actual restaurant name
-                intent.putExtra("orderCount", foodItems.size() + " أطباق"); // Replace with the number of orders
-                intent.putExtra("totalPrice", totalTextView.getText().toString()); // Replace with the total price
-                intent.putExtra("deliveryPrice", deliveryPriceTextView.getText().toString()); // Replace with the delivery price
-                intent.putExtra("totalWithDelivery", totalWithDeliveryTextView.getText().toString()); // Replace with the delivery price
+                intent.putExtra("restaurantName", restaurantName);
+                intent.putExtra("orderCount", foodItems.size() + " أطباق");
+                intent.putExtra("totalPrice", extractPriceFromString(totalTextView.getText().toString()));
+                intent.putExtra("deliveryPrice", extractPriceFromString(deliveryPriceTextView.getText().toString()));
+                intent.putExtra("totalWithDelivery", extractPriceFromString(totalWithDeliveryTextView.getText().toString()));
+                intent.putParcelableArrayListExtra("foodItems", foodItems);
+
                 startActivity(intent);
             }
         });
@@ -136,4 +136,9 @@ public class OrderSummaryActivity extends AppCompatActivity {
         adapter = new OrderSummaryAdapter(foodItems, this::calculateTotalPrice);
         recyclerView.setAdapter(adapter);
     }
+    private String extractPriceFromString(String priceString) {
+        // Extract numeric part from the string
+        return priceString.replaceAll("[^0-9.]", ""); // Keep only digits and decimal points
+    }
+
 }

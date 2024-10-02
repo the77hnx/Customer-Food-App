@@ -13,6 +13,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="68dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/tomato_toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -21,14 +22,13 @@
         app:titleTextColor="@android:color/black">
 
 
-
         <EditText
             android:id="@+id/searchEditText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/edit_text_rounded_corner"
             android:elevation="15dp"
@@ -126,6 +126,7 @@
 
 <!--        </LinearLayout>-->
 <!--        -->
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/popularRestaurantsRecyclerViewver"

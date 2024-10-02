@@ -17,62 +17,68 @@ import com.example.customer_food.R;
 
 import java.util.List;
 
-public class HistoryOrderAdapter extends RecyclerView.Adapter<HistoryOrderAdapter.OrderViewHolder> {
+public class HistoryOrderAdapter extends RecyclerView.Adapter<HistoryOrderAdapter.ViewHolder> {
 
+    private List<Order> orderList;
     private Context context;
-    private List<Order> orders;
 
     public HistoryOrderAdapter(Context context, List<Order> orders) {
         this.context = context;
-        this.orders = orders;
+        this.orderList = orders;
     }
 
     @NonNull
     @Override
-    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.frag_order, parent, false);
-        return new OrderViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.frag_order, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
-        Order order = orders.get(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Order order = orderList.get(position);
+        holder.orderIdTextView.setText("رقم الطلب #" + order.getOrderId());
+        holder.storeNameTextView.setText("المحل : " + order.getStoreName());
+        holder.orderPriceTextView.setText("سعر الطلب: " + order.getOrderPrice()+"دج");
+        holder.deliveryPriceTextView.setText("سعر التوصيل: " + order.getDeliveryPrice()+"دج");
+        holder.orderDateTextView.setText("التاريخ: " + order.getOrderDate());
+        holder.orderTimeTextView.setText("الوقت: " + order.getOrderTime());
+        holder.statusNameTextView.setText("حالة الطلب: " + order.getStatusName());
 
-        holder.textViewRestaurantName.setText("" + order.getRestaurantName());
-        holder.textViewOrderPrice.setText("" + order.getOrderPrice() + "");
-        holder.textViewDeliveryPrice.setText("" + order.getDeliveryPrice() + "");
-        holder.textViewNumberOfDelivery.setText("رقم الطلب : " + order.getOrderNumber());
-        holder.textViewDateOfDelivery.setText("تاريخ الطلب : " + order.getDateOfDelivery());
-        holder.textViewDeliveryStatus.setText("حالة الطلب : " + order.getDeliveryStatus());
-
-        holder.buttonMoreInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, DetailedOrderActivity.class);
-                intent.putExtra("orderDetails", order);
-                context.startActivity(intent);
-            }
+        holder.buttonMoreInfo.setOnClickListener(v -> {
+            Intent intent = new Intent(context, DetailedOrderActivity.class);
+            intent.putExtra("orderId", order.getOrderId()); // Pass the order ID as int
+            context.startActivity(intent);
         });
+
+
+
     }
 
     @Override
     public int getItemCount() {
-        return orders.size();
+        return orderList.size();
     }
 
-    static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewRestaurantName, textViewOrderPrice, textViewDeliveryPrice, textViewNumberOfDelivery, textViewDateOfDelivery, textViewDeliveryStatus;
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView orderIdTextView;
+        TextView storeNameTextView;
+        TextView orderPriceTextView;
+        TextView deliveryPriceTextView;
+        TextView orderDateTextView;
+        TextView orderTimeTextView;
+        TextView statusNameTextView;
         Button buttonMoreInfo;
 
-        public OrderViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            textViewRestaurantName = itemView.findViewById(R.id.textViewRestaurantName);
-            textViewOrderPrice = itemView.findViewById(R.id.textViewOrderPrice);
-            textViewDeliveryPrice = itemView.findViewById(R.id.textViewDeliveryPrice);
-            textViewNumberOfDelivery = itemView.findViewById(R.id.textViewNumberOfDelivery);
-            textViewDateOfDelivery = itemView.findViewById(R.id.textViewDateOfDelivery);
-            textViewDeliveryStatus = itemView.findViewById(R.id.textViewDeliveryStatus);
+            orderIdTextView = itemView.findViewById(R.id.textViewNumberOfDelivery);
+            storeNameTextView = itemView.findViewById(R.id.textViewRestaurantName);
+            orderPriceTextView = itemView.findViewById(R.id.textViewOrderPrice);
+            deliveryPriceTextView = itemView.findViewById(R.id.textViewDeliveryPrice);
+            orderDateTextView = itemView.findViewById(R.id.textViewDateOfDelivery);
+            orderTimeTextView = itemView.findViewById(R.id.textViewTimeOfDelivery);
+            statusNameTextView = itemView.findViewById(R.id.textViewDeliveryStatus);
             buttonMoreInfo = itemView.findViewById(R.id.buttonMoreInfo);
         }
     }

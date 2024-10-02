@@ -1,16 +1,33 @@
 package com.example.customer_food.Model;
 
-public class ShopItem {
+public class Restaurant {
+    private String restaurantId;
     private String restaurantName;
     private String restaurantLocation;
     private String restaurantValue;
     private String restaurantStatus;
+    private String restaurantImage;  // Optional if you have an image URL
 
-    public ShopItem(String restaurantName, String restaurantLocation, String restaurantValue, String restaurantStatus) {
+
+    // Constructors
+    public Restaurant() {}
+
+    public Restaurant(String restaurantId, String restaurantName, String restaurantLocation, String restaurantValue, String restaurantStatus) {
+        this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
         this.restaurantLocation = restaurantLocation;
         this.restaurantValue = restaurantValue;
         this.restaurantStatus = restaurantStatus;
+
+    }
+
+    // Getters and Setters
+    public String getRestaurantId() {
+        return restaurantId;
+    }
+
+    public void setRestaurantId(String restaurantId) {
+        this.restaurantId = restaurantId;
     }
 
     public String getRestaurantName() {
@@ -37,7 +54,6 @@ public class ShopItem {
         this.restaurantValue = restaurantValue;
     }
 
-
     public String getRestaurantStatus() {
         return restaurantStatus;
     }
@@ -45,4 +61,13 @@ public class ShopItem {
     public void setRestaurantStatus(String restaurantStatus) {
         this.restaurantStatus = restaurantStatus;
     }
+
+    public String getRestaurantImage() {
+        return restaurantImage;
+    }
+
+    public void setRestaurantImage(String restaurantImage) {
+        this.restaurantImage = restaurantImage;
+    }
+
 }

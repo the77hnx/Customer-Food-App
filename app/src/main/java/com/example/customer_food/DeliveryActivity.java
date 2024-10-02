@@ -3,7 +3,7 @@ package com.example.customer_food;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -12,15 +12,27 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.customer_food.Model.FoodItem;
 import com.example.customer_food.Model.Order;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeliveryActivity extends AppCompatActivity {
 
@@ -29,8 +41,9 @@ public class DeliveryActivity extends AppCompatActivity {
     private TextView productPriceTextView;
     private TextView deliveryPriceTextView;
     private TextView totalWithDeliveryTextView;
-    private EditText textAdditionalDescription;
+    private EditText textAdditionalDescriptionmag, textAdditionalDescriptionliv;
     private Button confirmButton;
+    int customerId = 17, deliveryWorkerId = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,28 +59,17 @@ public class DeliveryActivity extends AppCompatActivity {
         productPriceTextView = findViewById(R.id.productPriceTextView_del);
         deliveryPriceTextView = findViewById(R.id.deliveryPriceTextView_del);
         totalWithDeliveryTextView = findViewById(R.id.totalPriceTextView_del);
-        textAdditionalDescription = findViewById(R.id.textAdditionalDescription);
+        textAdditionalDescriptionmag = findViewById(R.id.textAdditionalDescriptionmag);
+        textAdditionalDescriptionliv = findViewById(R.id.textAdditionalDescriptionliv);
         confirmButton = findViewById(R.id.confirmButton);
 
         // Retrieve data from intent
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String restaurantName = extras.getString("restaurantName", "");
-            String orderCount = extras.getString("orderCount", "");
-            String totalPrice = extras.getString("totalPrice", "");
-            String deliveryPrice = extras.getString("deliveryPrice", "");
-            String totalWithDelivery = extras.getString("totalWithDelivery", "");
-
-
-            // Update TextViews
-            commentMlTextView.setText("المطعم : " + restaurantName);
-            posScoreMlTextView.setText("عدد الأطباق : " + orderCount);
-            productPriceTextView.setText("" + totalPrice);
-            deliveryPriceTextView.setText("" + deliveryPrice);
-            totalWithDeliveryTextView.setText("" + totalWithDelivery);
+            initializeViews(extras);
         }
 
-        // Apply WindowInsets to adjust layout with system bars
+        // Apply WindowInsets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -75,38 +77,57 @@ public class DeliveryActivity extends AppCompatActivity {
         });
 
         // Handle Confirm Button click
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String additionalInfo = textAdditionalDescription.getText().toString().trim();
+        confirmButton.setOnClickListener(v -> confirmOrder(extras));
+    }
 
-                // Retrieve necessary information from intent
-                String restaurantName = extras.getString("restaurantName", "");
-                String orderCount = extras.getString("orderCount", "");
-                String totalPrice = extras.getString("totalPrice", "");
-                String deliveryPrice = extras.getString("deliveryPrice", "");
-                String totalWithDelivery = extras.getString("totalWithDelivery", "");
-                String orderStatus = "Pending"; // You can set the initial order status here
+    private void initializeViews(Bundle extras) {
+        String restaurantName = extras.getString("restaurantName", "");
+        String orderCount = extras.getString("orderCount", "");
+        String totalPriceString = extras.getString("totalPrice", "0");
+        String deliveryPriceString = extras.getString("deliveryPrice", "0");
+        String totalWithDeliveryString = extras.getString("totalWithDelivery", "0");
 
-                // Create a new Order object
-                String orderNumber = getUserOrderNumber();
-                Order newOrder = new Order(restaurantName, orderCount, totalPrice, deliveryPrice, totalWithDelivery, orderStatus, orderNumber);
+        commentMlTextView.setText("المطعم : " + restaurantName);
+        posScoreMlTextView.setText("عدد الأطباق : " + orderCount);
+        productPriceTextView.setText("سعر الطلب : " + totalPriceString + " دج");
+        deliveryPriceTextView.setText("سعر التوصيل : " + deliveryPriceString + " دج");
+        totalWithDeliveryTextView.setText("السعر الكلي : " + totalWithDeliveryString + " دج");
+    }
 
-                showConfirmationDialog(newOrder);
-            }
-        });
+    private void confirmOrder(Bundle extras) {
+        String additionalInfomag = textAdditionalDescriptionmag.getText().toString().trim();
+        String additionalInfoliv = textAdditionalDescriptionliv.getText().toString().trim();
+
+        if (validateInputs(additionalInfomag, additionalInfoliv)) {
+            ArrayList<FoodItem> foodItems = getIntent().getParcelableArrayListExtra("foodItems");
+            String restaurantName = extras.getString("restaurantName", "");
+            String totalPriceString = extras.getString("totalPrice", "0");
+            String deliveryPriceString = extras.getString("deliveryPrice", "0");
+
+            double totalPrice = Double.parseDouble(totalPriceString);
+            double deliveryPrice = Double.parseDouble(deliveryPriceString);
+            String orderStatus = "Pending";
+            int orderId = getUserOrderNumber();
+
+            Order newOrder = new Order(orderId, restaurantName, deliveryPrice, totalPrice, "", "", orderStatus, additionalInfomag, additionalInfoliv);
+            sendOrderToServer(customerId, deliveryWorkerId, newOrder, additionalInfomag, additionalInfoliv, foodItems);
+            showConfirmationDialog(newOrder);
+        }
+    }
+
+    private boolean validateInputs(String additionalInfomag, String additionalInfoliv) {
+        if (additionalInfomag.isEmpty() && additionalInfoliv.isEmpty()) {
+            Toast.makeText(this, "يرجى إدخال معلومات إضافية", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     private void showConfirmationDialog(Order order) {
         new AlertDialog.Builder(DeliveryActivity.this)
                 .setTitle("تأكيد الطلب")
                 .setMessage("هل أنت متأكد من عملية الدفع")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        showOrderConfirmedDialog(order);
-                    }
-                })
+                .setPositiveButton("OK", (dialog, which) -> showOrderConfirmedDialog(order))
                 .setNegativeButton("Cancel", null)
                 .show();
     }
@@ -115,26 +136,68 @@ public class DeliveryActivity extends AppCompatActivity {
         new AlertDialog.Builder(DeliveryActivity.this)
                 .setTitle("تأكيد الطلب")
                 .setMessage("شكرا على ثقتك سيدي الزبون")
-                .setPositiveButton("موافق", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Prepare data to send to HistoryOrdersActivity
-                        Intent intent = new Intent(DeliveryActivity.this, HistoryOrdersActivity.class);
-                        intent.putExtra("restaurantName", commentMlTextView.getText().toString());
-                        intent.putExtra("orderCount", posScoreMlTextView.getText().toString());
-                        intent.putExtra("totalPrice", productPriceTextView.getText().toString());
-                        intent.putExtra("deliveryPrice", deliveryPriceTextView.getText().toString());
-                        intent.putExtra("totalWithDelivery", totalWithDeliveryTextView.getText().toString());
-                        intent.putExtra("orderStatus", "In Preparation");
-                        startActivity(intent);
-                    }
+                .setPositiveButton("موافق", (dialog, which) -> {
+                    Intent intent = new Intent(DeliveryActivity.this, HistoryOrdersActivity.class);
+                    startActivity(intent);
                 })
                 .show();
     }
 
-    private String getUserOrderNumber() {
-        // Implement this method to return the user's order number
-        // For example, you can fetch it from the user's profile or generate a unique number
-        return "12345"; // Example order number
+    private int getUserOrderNumber() {
+        return 12345; // Replace with your logic to generate unique order numbers
     }
+
+    private void sendOrderToServer(int customerId, int deliveryWorkerId, Order order, String additionalInfomag, String additionalInfoliv, ArrayList<FoodItem> foodItems) {
+        String url = "http://192.168.1.33/fissa/Customer/Add_demande.php";
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                response -> {
+                    try {
+                        // Try to parse the response as JSON
+                        JSONObject jsonResponse = new JSONObject(response);
+                        String status = jsonResponse.getString("status");
+                        String message = jsonResponse.getString("message");
+
+                        if (status.equals("success")) {
+                            Toast.makeText(DeliveryActivity.this, message, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(DeliveryActivity.this, "Failed to add order: " + message, Toast.LENGTH_SHORT).show();
+                            Log.e("DeliveryActivity", "Error adding order: " + message);
+                        }
+                    } catch (JSONException e) {
+                        // If parsing fails, treat the response as a plain string
+                        Toast.makeText(DeliveryActivity.this, "Response: " + response, Toast.LENGTH_SHORT).show();
+                        Log.e("DeliveryActivity", "Error adding order: " + e.getMessage());
+                    }
+                },
+                error -> Toast.makeText(DeliveryActivity.this, "Error adding order: " + error.getMessage(), Toast.LENGTH_SHORT).show()) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("customerId", String.valueOf(customerId));
+                params.put("deliveryWorkerId", String.valueOf(deliveryWorkerId));
+                params.put("restaurantName", order.getStoreName());
+                params.put("orderCount", String.valueOf(foodItems.size())); // Correctly passing order count
+                params.put("totalPrice", String.valueOf(order.getOrderPrice()));
+                params.put("deliveryPrice", String.valueOf(order.getDeliveryPrice()));
+                params.put("orderStatus", "1"); // Order status ID (initially 1)
+
+                // Add food items to parameters
+                for (int i = 0; i < foodItems.size(); i++) {
+                    FoodItem foodItem = foodItems.get(i);
+                    params.put("product_name_" + i, foodItem.getName());
+                    params.put("product_price_" + i, String.valueOf(foodItem.getPrice()));
+                    params.put("product_quantity_" + i, String.valueOf(foodItem.getCount()));
+                }
+
+                params.put("additionalInfomag", additionalInfomag);
+                params.put("additionalInfoliv", additionalInfoliv);
+                return params;
+            }
+        };
+
+        requestQueue.add(stringRequest);
+    }
+
 }

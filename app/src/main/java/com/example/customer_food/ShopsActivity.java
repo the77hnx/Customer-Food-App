@@ -1,76 +1,491 @@
+////package com.example.customer_food;
+////
+////import android.content.Intent;
+////import android.os.Bundle;
+////import android.text.Editable;
+////import android.text.TextWatcher;
+////import android.util.Log;
+////import android.view.Window;
+////import android.view.WindowManager;
+////import android.widget.Button;
+////import android.widget.EditText;
+////import android.widget.Toast;
+////
+////import androidx.annotation.NonNull;
+////import androidx.appcompat.app.AppCompatActivity;
+////import androidx.recyclerview.widget.LinearLayoutManager;
+////import androidx.recyclerview.widget.RecyclerView;
+////
+////import com.example.customer_food.Adapter.CategoriesAdapter;
+////import com.example.customer_food.Adapter.RestaurantAdapter;
+////import com.example.customer_food.Model.CategoriesItem;
+////import com.example.customer_food.Model.Restaurant;
+////import com.google.android.material.bottomnavigation.BottomNavigationView;
+////
+////import org.json.JSONArray;
+////import org.json.JSONException;
+////import org.json.JSONObject;
+////
+////import java.io.IOException;
+////import java.util.ArrayList;
+////import java.util.List;
+////
+////import okhttp3.Call;
+////import okhttp3.Callback;
+////import okhttp3.OkHttpClient;
+////import okhttp3.Request;
+////import okhttp3.Response;
+////
+////public class ShopsActivity extends AppCompatActivity {
+////
+////    private RecyclerView recyclerViewPop;
+////    private RecyclerView recyclerViewCat;
+////    private RestaurantAdapter popularRestaurantsAdapter;
+////    private CategoriesAdapter categoriesAdapter;
+////    private EditText searchEditText;
+////    private Button searchIcon;
+////    private List<Restaurant> restaurantList;
+////    private List<CategoriesItem> categoryList;
+////    private OkHttpClient client;
+////
+////    @Override
+////    protected void onCreate(Bundle savedInstanceState) {
+////        super.onCreate(savedInstanceState);
+////        requestWindowFeature(Window.FEATURE_NO_TITLE);
+////        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+////        getSupportActionBar().hide();
+////        setContentView(R.layout.activity_shops);
+////
+////        // Bottom navigation setup
+////        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_shops);
+////        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+////        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+////            int itemId = item.getItemId();
+////            if (itemId == R.id.navigation_home) {
+////                startActivity(new Intent(ShopsActivity.this, ShopsActivity.class));
+////                return true;
+////            } else if (itemId == R.id.navigation_following) {
+////                Toast.makeText(ShopsActivity.this, "لم تتابع اي شيء بعد", Toast.LENGTH_SHORT).show();
+////                return false;
+////            } else if (itemId == R.id.navigation_basket) {
+////                startActivity(new Intent(ShopsActivity.this, HistoryOrdersActivity.class));
+////                return true;
+////            } else if (itemId == R.id.navigation_profile) {
+////                startActivity(new Intent(ShopsActivity.this, ProfileActivity.class));
+////                return true;
+////            }
+////            return false;
+////        });
+////
+////        // Initialize RecyclerViews
+////        recyclerViewPop = findViewById(R.id.popularRestaurantsRecyclerViewver);
+////        recyclerViewCat = findViewById(R.id.popularRestaurantsRecyclerViewhor);
+////
+////        // Initialize searchEditText
+////        searchEditText = findViewById(R.id.searchEditText);
+////        searchEditText.addTextChangedListener(new TextWatcher() {
+////            @Override
+////            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+////            @Override
+////            public void onTextChanged(CharSequence s, int start, int before, int count) {
+////                filterData(s.toString());
+////            }
+////            @Override
+////            public void afterTextChanged(Editable s) {}
+////        });
+////
+////        // Initialize OkHttpClient and restaurantList
+////        client = new OkHttpClient();
+////        restaurantList = new ArrayList<>();
+////        categoryList = new ArrayList<>();
+////
+////        // Setup RecyclerViews
+////        setupPopularRestaurantsRecyclerView();
+////        setupCategoriesRecyclerView();
+////
+////        // Fetch restaurants and categories data
+////        fetchRestaurantAndCategoryData();
+////    }
+////
+////    private void setupPopularRestaurantsRecyclerView() {
+////        recyclerViewPop.setLayoutManager(new LinearLayoutManager(this));
+////        popularRestaurantsAdapter = new RestaurantAdapter(this, restaurantList, restaurant -> {
+////            // Handle restaurant item click
+////            Intent intent = new Intent(ShopsActivity.this, ShopInfoActivity.class);
+////            intent.putExtra("RESTAURANT_ID", restaurant.getRestaurantId());
+////            startActivity(intent);
+////        });
+////        recyclerViewPop.setAdapter(popularRestaurantsAdapter);
+////    }
+////
+////
+////    private void setupCategoriesRecyclerView() {
+////        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+////        recyclerViewCat.setLayoutManager(layoutManager);
+////
+////        // Initialize the categories adapter here
+////        categoriesAdapter = new CategoriesAdapter(this, categoryList, (categoryName, categoryId) -> {
+////            // Handle category click if needed
+////        });
+////        recyclerViewCat.setAdapter(categoriesAdapter);
+////    }
+////
+////
+////
+////    private void filterData(String searchText) {
+////        popularRestaurantsAdapter.getFilter().filter(searchText);
+////        categoriesAdapter.getFilter().filter(searchText);
+////    }
+////
+////    private void fetchRestaurantAndCategoryData() {
+////        String url = "http://192.168.1.34/fissa/Customer/Fetch_restaurants.php";
+////        Request request = new Request.Builder().url(url).build();
+////
+////        client.newCall(request).enqueue(new Callback() {
+////            @Override
+////            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+////                runOnUiThread(() -> Toast.makeText(ShopsActivity.this, "Failed to fetch data", Toast.LENGTH_LONG).show());
+////                Log.e("ShopsActivity", "Error: " + e.getMessage());
+////            }
+////
+////            @Override
+////            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+////                if (response.isSuccessful()) {
+////                    String jsonData = response.body().string();
+////                    Log.d("ShopsActivity", "Response JSON: " + jsonData);
+////                    try {
+////                        JSONObject jsonObject = new JSONObject(jsonData);
+////                        JSONArray restaurantArray = jsonObject.getJSONArray("restaurants");
+////                        JSONArray categoryArray = jsonObject.getJSONArray("items");
+////
+////                        restaurantList.clear();
+////                        categoryList.clear();
+////
+////                        // Parse restaurant data
+////                        for (int i = 0; i < restaurantArray.length(); i++) {
+////                            JSONObject restaurantObject = restaurantArray.getJSONObject(i);
+////                            String restaurantId = restaurantObject.getString("restaurantId");
+////                            String restaurantName = restaurantObject.getString("restaurantName");
+////                            String restaurantLocation = restaurantObject.getString("restaurantLocation");
+////                            String restaurantValue = restaurantObject.getString("restaurantValue");
+////                            String restaurantStatus = restaurantObject.getString("restaurantStatus");
+////
+////                            Restaurant restaurant = new Restaurant(restaurantId, restaurantName, restaurantLocation, restaurantValue, restaurantStatus);
+////                            restaurantList.add(restaurant);
+////                        }
+////
+////                        // Parse category data
+////                        for (int i = 0; i < categoryArray.length(); i++) {
+////                            JSONObject categoryObject = categoryArray.getJSONObject(i);
+////                            String categoryName = categoryObject.getString("categoryName");
+////                            String categoryId = String.valueOf(i); // or however you want to generate it
+////                            CategoriesItem category = new CategoriesItem(categoryName,categoryId);
+////                            categoryList.add(category);
+////                        }
+////
+////                        runOnUiThread(() -> {
+////                            popularRestaurantsAdapter.notifyDataSetChanged();
+////                            categoriesAdapter.notifyDataSetChanged();
+////                        });
+////                    } catch (JSONException e) {
+////                        runOnUiThread(() -> Toast.makeText(ShopsActivity.this, "Failed to parse data", Toast.LENGTH_LONG).show());
+////                        Log.e("ShopsActivity", "JSON Parsing error: " + e.getMessage());
+////                    }
+////                }
+////            }
+////        });
+////    }
+////
+////
+////
+////
+////}
+//package com.example.customer_food;
+//
+//import android.content.Intent;
+//import android.os.Bundle;
+//import android.text.Editable;
+//import android.text.TextWatcher;
+//import android.util.Log;
+//import android.view.Window;
+//import android.view.WindowManager;
+//import android.widget.Button;
+//import android.widget.EditText;
+//import android.widget.Toast;
+//
+//import androidx.annotation.NonNull;
+//import androidx.appcompat.app.AppCompatActivity;
+//import androidx.recyclerview.widget.LinearLayoutManager;
+//import androidx.recyclerview.widget.RecyclerView;
+//
+//import com.example.customer_food.Adapter.CategoriesAdapter;
+//import com.example.customer_food.Adapter.RestaurantAdapter;
+//import com.example.customer_food.Model.CategoriesItem;
+//import com.example.customer_food.Model.Restaurant;
+//import com.google.android.material.bottomnavigation.BottomNavigationView;
+//
+//import org.json.JSONArray;
+//import org.json.JSONException;
+//import org.json.JSONObject;
+//
+//import java.io.IOException;
+//import java.util.ArrayList;
+//import java.util.List;
+//
+//import okhttp3.Call;
+//import okhttp3.Callback;
+//import okhttp3.OkHttpClient;
+//import okhttp3.Request;
+//import okhttp3.Response;
+//
+//public class ShopsActivity extends AppCompatActivity {
+//
+//    private RecyclerView recyclerViewPop;
+//    private RecyclerView recyclerViewCat;
+//    private RestaurantAdapter popularRestaurantsAdapter;
+//    private CategoriesAdapter categoriesAdapter;
+//    private EditText searchEditText;
+//    private List<Restaurant> restaurantList;
+//    private List<CategoriesItem> categoryList;
+//    private OkHttpClient client;
+//
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getSupportActionBar().hide();
+//        setContentView(R.layout.activity_shops);
+//
+//        // Bottom navigation setup
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_shops);
+//        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+//        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+//            int itemId = item.getItemId();
+//            if (itemId == R.id.navigation_home) {
+//                startActivity(new Intent(ShopsActivity.this, ShopsActivity.class));
+//                return true;
+//            } else if (itemId == R.id.navigation_following) {
+//                Toast.makeText(ShopsActivity.this, "لم تتابع اي شيء بعد", Toast.LENGTH_SHORT).show();
+//                return false;
+//            } else if (itemId == R.id.navigation_basket) {
+//                startActivity(new Intent(ShopsActivity.this, HistoryOrdersActivity.class));
+//                return true;
+//            } else if (itemId == R.id.navigation_profile) {
+//                startActivity(new Intent(ShopsActivity.this, ProfileActivity.class));
+//                return true;
+//            }
+//            return false;
+//        });
+//
+//        // Initialize RecyclerViews
+//        recyclerViewPop = findViewById(R.id.popularRestaurantsRecyclerViewver);
+//        recyclerViewCat = findViewById(R.id.popularRestaurantsRecyclerViewhor);
+//
+//        // Initialize searchEditText
+//        searchEditText = findViewById(R.id.searchEditText);
+//        searchEditText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                filterData(s.toString());
+//            }
+//            @Override
+//            public void afterTextChanged(Editable s) {}
+//        });
+//
+//        // Initialize OkHttpClient and lists
+//        client = new OkHttpClient();
+//        restaurantList = new ArrayList<>();
+//        categoryList = new ArrayList<>();
+//
+//        // Setup RecyclerViews
+//        setupPopularRestaurantsRecyclerView();
+//        setupCategoriesRecyclerView();
+//
+//        // Fetch restaurants and categories data
+//        fetchRestaurantAndCategoryData();
+//    }
+//
+//    private void setupPopularRestaurantsRecyclerView() {
+//        recyclerViewPop.setLayoutManager(new LinearLayoutManager(this));
+//        popularRestaurantsAdapter = new RestaurantAdapter(this, restaurantList, restaurant -> {
+//            // Handle restaurant item click
+//            Intent intent = new Intent(ShopsActivity.this, ShopInfoActivity.class);
+//            intent.putExtra("RESTAURANT_ID", restaurant.getRestaurantId());
+//            startActivity(intent);
+//        });
+//        recyclerViewPop.setAdapter(popularRestaurantsAdapter);
+//    }
+//
+//    private void setupCategoriesRecyclerView() {
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+//        recyclerViewCat.setLayoutManager(layoutManager);
+//
+//        // Initialize the categories adapter
+//        categoriesAdapter = new CategoriesAdapter(this, categoryList, (categoryName, categoryId) -> {
+//            filterRestaurantsByCategory(categoryId);
+//        });
+//        recyclerViewCat.setAdapter(categoriesAdapter);
+//    }
+//
+//    private void filterData(String searchText) {
+//        popularRestaurantsAdapter.getFilter().filter(searchText);
+//    }
+//
+//    private void filterRestaurantsByCategory(String categoryId) {
+//        List<Restaurant> filteredList = new ArrayList<>();
+//
+//        for (Restaurant restaurant : restaurantList) {
+//            // Assuming each restaurant has a method getCategoryId
+//            if (restaurant.getCategoryId().equals(categoryId)) {
+//                filteredList.add(restaurant);
+//            }
+//        }
+//
+//        // Update the adapter with the filtered list
+//        popularRestaurantsAdapter.updateData(filteredList);
+//    }
+//
+//    private void fetchRestaurantAndCategoryData() {
+//        String url = "http://192.168.1.34/fissa/Customer/Fetch_restaurants.php";
+//        Request request = new Request.Builder().url(url).build();
+//
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+//                runOnUiThread(() -> Toast.makeText(ShopsActivity.this, "Failed to fetch data", Toast.LENGTH_LONG).show());
+//                Log.e("ShopsActivity", "Error: " + e.getMessage());
+//            }
+//
+//            @Override
+//            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+//                if (response.isSuccessful()) {
+//                    String jsonData = response.body().string();
+//                    Log.d("ShopsActivity", "Response JSON: " + jsonData);
+//                    try {
+//                        JSONObject jsonObject = new JSONObject(jsonData);
+//                        JSONArray restaurantArray = jsonObject.getJSONArray("restaurants");
+//                        JSONArray categoryArray = jsonObject.getJSONArray("items");
+//
+//                        restaurantList.clear();
+//                        categoryList.clear();
+//
+//                        // Parse restaurant data
+//                        for (int i = 0; i < restaurantArray.length(); i++) {
+//                            JSONObject restaurantObject = restaurantArray.getJSONObject(i);
+//                            String restaurantId = restaurantObject.getString("restaurantId");
+//                            String restaurantName = restaurantObject.getString("restaurantName");
+//                            String restaurantLocation = restaurantObject.getString("restaurantLocation");
+//                            String restaurantValue = restaurantObject.getString("restaurantValue");
+//                            String restaurantStatus = restaurantObject.getString("restaurantStatus");
+//                            String categoryId = restaurantObject.getString("categoryId"); // Make sure this field exists
+//
+//                            Restaurant restaurant = new Restaurant(restaurantId, restaurantName, restaurantLocation, restaurantValue, restaurantStatus, categoryId);
+//                            restaurantList.add(restaurant);
+//                        }
+//
+//                        // Parse category data
+//                        for (int i = 0; i < categoryArray.length(); i++) {
+//                            JSONObject categoryObject = categoryArray.getJSONObject(i);
+//                            String categoryName = categoryObject.getString("categoryName");
+//                            String categoryId = categoryObject.getString("categoryId"); // Ensure this is correctly obtained
+//                            CategoriesItem category = new CategoriesItem(categoryName, categoryId);
+//                            categoryList.add(category);
+//                        }
+//
+//                        runOnUiThread(() -> {
+//                            popularRestaurantsAdapter.notifyDataSetChanged();
+//                            categoriesAdapter.notifyDataSetChanged();
+//                        });
+//                    } catch (JSONException e) {
+//                        runOnUiThread(() -> Toast.makeText(ShopsActivity.this, "Failed to parse data", Toast.LENGTH_LONG).show());
+//                        Log.e("ShopsActivity", "JSON Parsing error: " + e.getMessage());
+//                    }
+//                }
+//            }
+//        });
+//    }
+//}
+
+
 package com.example.customer_food;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.widget.Toast;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.MenuItem;
 
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.customer_food.Adapter.CategoriesAdapter;
-import com.example.customer_food.Adapter.PopularRestaurantsAdapter;
+import com.example.customer_food.Adapter.RestaurantAdapter;
 import com.example.customer_food.Model.CategoriesItem;
-import com.example.customer_food.Model.ShopItem;
+import com.example.customer_food.Model.Restaurant;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ShopsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewPop;
     private RecyclerView recyclerViewCat;
-    private PopularRestaurantsAdapter popularRestaurantsAdapter;
+    private RestaurantAdapter popularRestaurantsAdapter;
     private CategoriesAdapter categoriesAdapter;
     private EditText searchEditText;
-    private Button searchIcon;
-
-
+    private List<Restaurant> restaurantList;
+    private List<CategoriesItem> categoryList;
+    private OkHttpClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
         setContentView(R.layout.activity_shops);
 
+        // Bottom navigation setup
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_shops);
-        bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Change this based on the activity
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.navigation_home) {
-                    // Navigate to ShopsActivity
-                    startActivity(new Intent(ShopsActivity.this, ShopsActivity.class));
-                    return true;
-                } else if (itemId == R.id.navigation_following) {
-                    // Show toast indicating following action
-                    Toast.makeText(ShopsActivity.this, "لم تتابع اي شيء بعد", Toast.LENGTH_SHORT).show();
-                    return false;
-                } else if (itemId == R.id.navigation_basket) {
-                    // Navigate to OrderSummaryActivity
-                    startActivity(new Intent(ShopsActivity.this, HistoryOrdersActivity.class));
-                    return true;
-                } else if (itemId == R.id.navigation_profile) {
-                    // Navigate to ProfileActivity
-                    startActivity(new Intent(ShopsActivity.this, ProfileActivity.class));
-                    return true;
-                }
+        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_home) {
+                startActivity(new Intent(ShopsActivity.this, ShopsActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_following) {
+                Toast.makeText(ShopsActivity.this, "لم تتابع اي شيء بعد", Toast.LENGTH_SHORT).show();
                 return false;
+            } else if (itemId == R.id.navigation_basket) {
+                startActivity(new Intent(ShopsActivity.this, HistoryOrdersActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_profile) {
+                startActivity(new Intent(ShopsActivity.this, ProfileActivity.class));
+                return true;
             }
+            return false;
         });
 
         // Initialize RecyclerViews
@@ -82,56 +497,35 @@ public class ShopsActivity extends AppCompatActivity {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 filterData(s.toString());
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
+        // Initialize OkHttpClient and lists
+        client = new OkHttpClient();
+        restaurantList = new ArrayList<>();
+        categoryList = new ArrayList<>();
 
         // Setup RecyclerViews
         setupPopularRestaurantsRecyclerView();
         setupCategoriesRecyclerView();
 
-        // Set click listeners
-        popularRestaurantsAdapter.setOnItemClickListener(new PopularRestaurantsAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(ShopItem item) {
-                Intent intent = new Intent(ShopsActivity.this, ShopInfoActivity.class);
-                intent.putExtra("restaurantName", item.getRestaurantName()); // Pass restaurant name
-                intent.putExtra("restaurantLocation", item.getRestaurantLocation()); // Pass restaurant location
-                intent.putExtra("restaurantStatus", item.getRestaurantValue());
-                startActivity(intent);
-            }
-        });
-
-
-        categoriesAdapter.setOnItemClickListener(new CategoriesAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                // Replace with your logic to handle category click
-                // For demonstration, opening ShopInfoActivity directly
-                //        Intent intent = new Intent(ShopsActivity.this, ShopInfoActivity.class);
-//                startActivity(intent);
-                // You may want to pass data to ShopInfoActivity based on the clicked category
-            }
-        });
+        // Fetch restaurants and categories data
+        fetchRestaurantAndCategoryData();
     }
 
     private void setupPopularRestaurantsRecyclerView() {
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerViewPop.setLayoutManager(layoutManager);
-
-        ArrayList<ShopItem> shopItemList = new ArrayList<>();
-        shopItemList.add(new ShopItem("بيتزيريا الحرية", "الوادي", "5.0", "مفتوح"));
-        shopItemList.add(new ShopItem("مملكة البروتين", "الوادي", "2.1", "مغلق"));
-        shopItemList.add(new ShopItem("ملك الطاكوس", "الوادي", "4.5", "مفتوح"));
-
-        popularRestaurantsAdapter = new PopularRestaurantsAdapter(this, shopItemList);
+        recyclerViewPop.setLayoutManager(new LinearLayoutManager(this));
+        popularRestaurantsAdapter = new RestaurantAdapter(this, restaurantList, restaurant -> {
+            // Handle restaurant item click
+            Intent intent = new Intent(ShopsActivity.this, ShopInfoActivity.class);
+            intent.putExtra("RESTAURANT_ID", restaurant.getRestaurantId());
+            startActivity(intent);
+        });
         recyclerViewPop.setAdapter(popularRestaurantsAdapter);
     }
 
@@ -139,19 +533,87 @@ public class ShopsActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerViewCat.setLayoutManager(layoutManager);
 
-        ArrayList<CategoriesItem> categoryList = new ArrayList<>();
-        categoryList.add(new CategoriesItem("مطاعم"));
-        categoryList.add(new CategoriesItem("بيتزيريا"));
-        categoryList.add(new CategoriesItem("مشاوي"));
-        categoryList.add(new CategoriesItem("حلويات"));
-        categoryList.add(new CategoriesItem("اخرى"));
-
-
-        categoriesAdapter = new CategoriesAdapter(this, categoryList);
+        // Initialize the categories adapter
+        categoriesAdapter = new CategoriesAdapter(this, categoryList, (categoryName, categoryId) -> {
+//            filterRestaurantsByCategory(categoryId);
+        });
         recyclerViewCat.setAdapter(categoriesAdapter);
     }
+
     private void filterData(String searchText) {
-        popularRestaurantsAdapter.filter(searchText);
-        categoriesAdapter.filter(searchText);
+        popularRestaurantsAdapter.getFilter().filter(searchText);
+    }
+
+//    private void filterRestaurantsByCategory(String categoryId) {
+//        List<Restaurant> filteredList = new ArrayList<>();
+//
+//        for (Restaurant restaurant : restaurantList) {
+//            // Check if the restaurant's category ID matches the selected category ID
+//            if (restaurant.getCategoryId().equals(categoryId)) {
+//                filteredList.add(restaurant);
+//            }
+//        }
+//
+//        // Update the adapter with the filtered list
+//        popularRestaurantsAdapter.updateData(filteredList);
+//    }
+
+    private void fetchRestaurantAndCategoryData() {
+        String url = "http://192.168.1.34/fissa/Customer/Fetch_restaurants.php";
+        Request request = new Request.Builder().url(url).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> Toast.makeText(ShopsActivity.this, "Failed to fetch data", Toast.LENGTH_LONG).show());
+                Log.e("ShopsActivity", "Error: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String jsonData = response.body().string();
+                    Log.d("ShopsActivity", "Response JSON: " + jsonData);
+                    try {
+                        JSONObject jsonObject = new JSONObject(jsonData);
+                        JSONArray restaurantArray = jsonObject.getJSONArray("restaurants");
+                        JSONArray categoryArray = jsonObject.getJSONArray("items");
+
+                        restaurantList.clear();
+                        categoryList.clear();
+
+                        // Parse restaurant data
+                        for (int i = 0; i < restaurantArray.length(); i++) {
+                            JSONObject restaurantObject = restaurantArray.getJSONObject(i);
+                            String restaurantId = restaurantObject.getString("restaurantId");
+                            String restaurantName = restaurantObject.getString("restaurantName");
+                            String restaurantLocation = restaurantObject.getString("restaurantLocation");
+                            String restaurantValue = restaurantObject.getString("restaurantValue");
+                            String restaurantStatus = restaurantObject.getString("restaurantStatus");
+
+                            Restaurant restaurant = new Restaurant(restaurantId, restaurantName, restaurantLocation, restaurantValue, restaurantStatus);
+                            restaurantList.add(restaurant);
+                        }
+
+                        // Parse category data
+                        for (int i = 0; i < categoryArray.length(); i++) {
+                            JSONObject categoryObject = categoryArray.getJSONObject(i);
+                            String categoryName = categoryObject.getString("categoryName");
+                            String categoryId = categoryObject.getString("categoryId"); // Ensure this is correctly obtained
+                            CategoriesItem category = new CategoriesItem(categoryName, categoryId);
+                            categoryList.add(category);
+                        }
+
+                        runOnUiThread(() -> {
+                            popularRestaurantsAdapter.notifyDataSetChanged();
+                            categoriesAdapter.notifyDataSetChanged();
+                        });
+                    } catch (JSONException e) {
+                        runOnUiThread(() -> Toast.makeText(ShopsActivity.this, "Failed to parse data", Toast.LENGTH_LONG).show());
+                        Log.e("ShopsActivity", "JSON Parsing error: " + e.getMessage());
+                    }
+                }
+            }
+        });
     }
 }

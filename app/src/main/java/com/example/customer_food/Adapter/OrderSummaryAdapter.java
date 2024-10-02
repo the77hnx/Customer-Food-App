@@ -37,11 +37,13 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
         holder.foodName.setText(foodItem.getName());
         holder.foodPrice.setText(String.valueOf(foodItem.getPrice()));
         holder.foodCount.setText(String.valueOf(foodItem.getCount()));
+        holder.allProductPrice.setText(String.format("%.2f", foodItem.getPrice() * foodItem.getCount()));
 
 
         holder.addButton.setOnClickListener(v -> {
             foodItem.incrementCount();
             holder.foodCount.setText(String.valueOf(foodItem.getCount()));
+            holder.allProductPrice.setText(String.format("%.2f", foodItem.getPrice() * foodItem.getCount()));
             updateTotalPriceCallback.run();
         });
 
@@ -54,6 +56,7 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
             } else {
                 holder.foodCount.setText(String.valueOf(foodItem.getCount()));
             }
+            holder.allProductPrice.setText(String.format("%.2f", foodItem.getPrice() * foodItem.getCount()));
             updateTotalPriceCallback.run();
         });
     }
@@ -64,7 +67,7 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView foodName, foodPrice, foodCount;
+        TextView foodName, foodPrice, foodCount, allProductPrice;
         Button addButton, removeButton;
 
         public ViewHolder(@NonNull View itemView) {
@@ -74,6 +77,8 @@ public class OrderSummaryAdapter extends RecyclerView.Adapter<OrderSummaryAdapte
             foodCount = itemView.findViewById(R.id.food_details_item_count);
             addButton = itemView.findViewById(R.id.food_details_food_add);
             removeButton = itemView.findViewById(R.id.food_details_food_remove);
+            allProductPrice = itemView.findViewById(R.id.allproductPriceTextView_frag); // Initialize here
+
         }
     }
 }

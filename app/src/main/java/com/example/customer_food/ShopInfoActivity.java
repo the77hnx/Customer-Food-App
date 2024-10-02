@@ -1,7 +1,9 @@
 package com.example.customer_food;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,6 +21,17 @@ import com.example.customer_food.Adapter.ShopInfoAdapter;
 import com.example.customer_food.Model.FoodItem;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class ShopInfoActivity extends AppCompatActivity {
@@ -48,6 +61,8 @@ public class ShopInfoActivity extends AppCompatActivity {
         timedel = findViewById(R.id.timedel);
         share = findViewById(R.id.button);
         totalPriceButton = findViewById(R.id.totalPriceButton);
+        recyclerView = findViewById(R.id.recyclerView); // Initialize RecyclerView
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView_sinfo);
         bottomNavigationView.setSelectedItemId(R.id.navigation_home); // Change this based on the activity
 
@@ -64,15 +79,22 @@ public class ShopInfoActivity extends AppCompatActivity {
                     startActivity(new Intent(ShopInfoActivity.this, OrderSummaryActivity.class));
                     return true;
                 } else if (itemId == R.id.navigation_orders) {
-                    // Navigate to ProfileActivity
+                    // Navigate to HistoryOrdersActivity
                     startActivity(new Intent(ShopInfoActivity.this, HistoryOrdersActivity.class));
                     return true;
                 }
                 return false;
             }
         });
-        // Initialize RecyclerView
-        initRecyclerView();
+
+        // Initialize the category list and adapter in onCreate
+        categoryList = new ArrayList<>();
+        Runnable updateTotalPriceCallback = this::updateTotalPrice;
+        shopInfoAdapter = new ShopInfoAdapter(categoryList, updateTotalPriceCallback);
+
+        // Set up RecyclerView
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(shopInfoAdapter);
 
         // Set click listener for the total price button
         totalPriceButton.setOnClickListener(v -> {
@@ -81,47 +103,133 @@ public class ShopInfoActivity extends AppCompatActivity {
                 if (item.getCount() > 0) {
                     filteredItems.add(item);
                 }
+            }
+            Intent intent = new Intent(ShopInfoActivity.this, OrderSummaryActivity.class);
+            intent.putParcelableArrayListExtra("filteredItems", filteredItems);
+            intent.putExtra("restaurantName", textRestaurantName.getText().toString());
+            intent.putExtra("restaurantEvaluation", textEvaluation.getText().toString());
+            intent.putExtra("restaurantLocation", placeRes.getText().toString());
 
-                Intent intent = new Intent(ShopInfoActivity.this, OrderSummaryActivity.class);
-                intent.putParcelableArrayListExtra("filteredItems", filteredItems);
-                startActivity(intent);}
-
+            startActivity(intent);
         });
+
+        // Get restaurant ID from Intent and fetch data from the server
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String restaurantName = extras.getString("restaurantName", "");
-            String restaurantLocation = extras.getString("restaurantLocation", "");
-            String restaurantStatus = extras.getString("restaurantStatus", "");
+            String restaurantId = extras.getString("RESTAURANT_ID", "");
 
-            // Example of setting data
-            textRestaurantName.setText(restaurantName);
-            textEvaluation.setText(restaurantStatus);
-            placeRes.setText(restaurantLocation);
-            val.setText("100 DZD");
-            timedel.setText("0:30 - 1:30");
+            // Fetch restaurant products using the restaurant ID
+            fetchRestaurantProducts(restaurantId);
         }
-        // Initial total price calculation
-        calculateTotalPrice();
     }
 
-    private void initRecyclerView() {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        categoryList = new ArrayList<>();
-        categoryList.add(new FoodItem("بيتزا", 10.0, 0));
-        categoryList.add(new FoodItem("هامبرغر", 20.0, 0));
-        categoryList.add(new FoodItem("طاكوس", 30.0, 0));
+    private void fetchRestaurantProducts(String restaurantId) {
+        new AsyncTask<String, Void, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                String result = "";
+                try {
+                    URL url = new URL("http://192.168.1.33/fissa/Customer/Magasin_Info.php");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setDoOutput(true);
+                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        shopInfoAdapter = new ShopInfoAdapter(categoryList, this::calculateTotalPrice);
-        recyclerView.setAdapter(shopInfoAdapter);
+                    String postData = "restaurantId=" + URLEncoder.encode(params[0], "UTF-8");
+
+                    OutputStream os = connection.getOutputStream();
+                    os.write(postData.getBytes());
+                    os.flush();
+                    os.close();
+
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        InputStream is = connection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            sb.append(line);
+                        }
+                        result = sb.toString();
+                        reader.close();
+                    } else {
+                        result = "Error: " + responseCode;
+                    }
+                    connection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    result = "Error: " + e.getMessage();
+                }
+                return result;
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                if (result.contains("Error")) {
+                    Toast.makeText(ShopInfoActivity.this, "Error fetching data: " + result, Toast.LENGTH_SHORT).show();
+                    Log.e("ShopInfoActivity", "Error: " + result);
+                } else {
+                    // Log the result for debugging
+                    Log.d("ShopInfoActivity", "Result: " + result);
+                    // Handle the result and update UI
+                    handleFetchResult(result);
+                }
+            }
+        }.execute(restaurantId);
     }
 
-    private void calculateTotalPrice() {
-        totalPrice = 0.0;
+    private void handleFetchResult(String result) {
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            JSONObject restaurantObject = jsonObject.getJSONObject("restaurant");
+            JSONArray productsArray = jsonObject.getJSONArray("products");
+
+            // Extract restaurant data
+            String restaurantName = restaurantObject.getString("Nom_magasin");
+            String restaurantEvaluation = restaurantObject.isNull("Evaluation") ? "No evaluation" : restaurantObject.getString("Evaluation");
+            String restaurantLocation = restaurantObject.getString("Address_magasin");
+            String restaurantStatus = restaurantObject.getString("Statut_magasin");
+
+            // Update UI
+            textRestaurantName.setText(restaurantName);
+            textEvaluation.setText(restaurantEvaluation);
+            placeRes.setText(restaurantLocation);
+            val.setText("100 DZD"); // Adjust based on your data
+            timedel.setText("0:30 - 1:30"); // Adjust based on your data
+
+            // Ensure categoryList is not null before clearing
+            if (categoryList == null) {
+                categoryList = new ArrayList<>();
+            } else {
+                categoryList.clear();
+            }
+
+            // Update RecyclerView with products
+            for (int i = 0; i < productsArray.length(); i++) {
+                JSONObject productObject = productsArray.getJSONObject(i);
+                // Using updated keys from PHP response
+                FoodItem foodItem = new FoodItem(
+                        productObject.getString("productName"),
+                        productObject.getDouble("price"),
+                        productObject.getInt("count") // This will be 0 as set in PHP script
+                );
+                categoryList.add(foodItem);
+            }
+            shopInfoAdapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(ShopInfoActivity.this, "Error parsing data", Toast.LENGTH_SHORT).show();
+            Log.e("ShopInfoActivity", "Error Parsing data: " + e.getMessage());
+        }
+    }
+
+    private void updateTotalPrice() {
+        // Calculate and update total price
+        double totalPrice = 0.0;
         for (FoodItem item : categoryList) {
             totalPrice += item.getPrice() * item.getCount();
         }
-        totalPriceButton.setText("السعر الاجمالي : " + totalPrice + "دج");
+        totalPriceButton.setText(String.format("الاجمالي: %.2f", totalPrice));
     }
 }

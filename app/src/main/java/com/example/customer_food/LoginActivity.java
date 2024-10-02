@@ -3,111 +3,151 @@ package com.example.customer_food;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Patterns;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText etFullname, etEmail, etPhoneNumber;
+    private EditText etEmail, etPassword;
     private CheckBox checkboxRememberMe;
-    private Button btnPhoneLogin;
-
-    private static final String PREF_NAME = "login_preferences";
-    private static final String KEY_FULLNAME = "fullname";
-    private static final String KEY_EMAIL = "email";
-    private static final String KEY_PHONE_NUMBER = "phone_number";
-    private static final String KEY_REMEMBER_ME = "remember_me";
+    private Button btnLogin;
+    private TextView resendTextView;
+    private OkHttpClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getSupportActionBar().hide();
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login); // Ensure your layout file is named correctly
 
-        etFullname = findViewById(R.id.etfullname);
+        // Initialize views
         etEmail = findViewById(R.id.etEmail);
-        etPhoneNumber = findViewById(R.id.etPhoneNumber);
+        etPassword = findViewById(R.id.etPassword);
         checkboxRememberMe = findViewById(R.id.checkboxRememberMe);
-        btnPhoneLogin = findViewById(R.id.btnPhoneLogin);
+        btnLogin = findViewById(R.id.btnPhoneLogin);
+        resendTextView = findViewById(R.id.resendTextView);
+        client = new OkHttpClient();
 
-        btnPhoneLogin.setOnClickListener(v -> {
-            String fullname = etFullname.getText().toString().trim();
-            String email = etEmail.getText().toString().trim();
-            String phoneNumber = etPhoneNumber.getText().toString().trim();
+        // Load saved login information if "Remember Me" was checked
+        SharedPreferences preferences = getSharedPreferences("LoginPrefs", MODE_PRIVATE);
+        boolean rememberMe = preferences.getBoolean("rememberMe", false);
+        if (rememberMe) {
+            etEmail.setText(preferences.getString("email", ""));
+            etPassword.setText(preferences.getString("password", ""));
+            checkboxRememberMe.setChecked(true);
+        }
 
-            if (fullname.isEmpty() || email.isEmpty() || phoneNumber.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "الرجاء إدخال جميع الحقول", Toast.LENGTH_SHORT).show();
-            } else if (!isValidEmail(email)) {
-                Toast.makeText(LoginActivity.this, "الرجاء إدخال بريد إلكتروني صالح", Toast.LENGTH_SHORT).show();
-            } else {
-                // Simulate login check (replace with your actual login logic)
-                boolean isLoginValid = isLoginValid(fullname, email, phoneNumber);
+        // Set up login button click listener
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = etEmail.getText().toString().trim();
+                String password = etPassword.getText().toString().trim();
 
-                if (isLoginValid) {
-                    // Save login info if "Remember Me" is checked
-                    if (checkboxRememberMe.isChecked()) {
-                        saveLoginPreferences(fullname, email, phoneNumber, true);
-                    } else {
-                        clearLoginPreferences();
-                    }
+                if (validateInput(email, password)) {
+                    // Create a POST request to send email and password
+                    RequestBody formBody = new FormBody.Builder()
+                            .add("email", email)
+                            .add("password", password)
+                            .build();
 
-                    // Navigate to OTP page (replace with your OTP activity)
-                    Intent intent = new Intent(LoginActivity.this, LocationActivity.class);
-                    startActivity(intent);
-                    finish(); // Finish current activity to prevent back button from returning here
-                } else {
-                    Toast.makeText(LoginActivity.this, "بيانات تسجيل الدخول غير صحيحة", Toast.LENGTH_SHORT).show();
+                    Request request = new Request.Builder()
+                            .url("http://192.168.1.34/fissa/Customer/Login.php")
+                            .post(formBody)
+                            .build();
+
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            // Handle failure in network call
+                            runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Failed to connect to server", Toast.LENGTH_LONG).show());
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            if (response.isSuccessful()) {
+                                String jsonData = response.body().string();
+                                try {
+                                    JSONObject jsonObject = new JSONObject(jsonData);
+                                    boolean success = jsonObject.getBoolean("success");
+                                    String message = jsonObject.getString("message");
+
+                                    runOnUiThread(() -> {
+                                        if (success) {
+                                            // If login is successful, navigate to the LocationActivity
+                                            Intent intent = new Intent(LoginActivity.this, LocationActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        } else {
+                                            // Show error message from server
+                                            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                } catch (JSONException e) {
+                                    runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Error parsing server response", Toast.LENGTH_LONG).show());
+                                }
+                            } else {
+                                runOnUiThread(() -> Toast.makeText(LoginActivity.this, "Server error: " + response.code(), Toast.LENGTH_LONG).show());
+                            }
+                        }
+
+
+                    });
                 }
             }
         });
 
-        // Load saved login info if "Remember Me" was previously checked
-        if (loadLoginPreferences()) {
-            String savedFullname = getSharedPreferences(PREF_NAME, MODE_PRIVATE).getString(KEY_FULLNAME, "");
-            String savedEmail = getSharedPreferences(PREF_NAME, MODE_PRIVATE).getString(KEY_EMAIL, "");
-            String savedPhoneNumber = getSharedPreferences(PREF_NAME, MODE_PRIVATE).getString(KEY_PHONE_NUMBER, "");
+        // Set up click listener for sign-up navigation
+        resendTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
 
-            etFullname.setText(savedFullname);
-            etEmail.setText(savedEmail);
-            etPhoneNumber.setText(savedPhoneNumber);
-            checkboxRememberMe.setChecked(true);
+    // Validate email and password input
+    private boolean validateInput(String email, String password) {
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(this, "الرجاء إدخال البريد الالكتروني", Toast.LENGTH_SHORT).show();
+            return false;
         }
+
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "الرجاء إدخال كلمة المرور", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Here you can add more checks (e.g., email format, password strength, etc.)
+        return true;
     }
 
-    private boolean isLoginValid(String fullname, String email, String phoneNumber) {
-        // Replace with your actual login validation logic (e.g., check against a database)
-        // This is a placeholder method
-        return true; // For demo purposes, always return true
-    }
 
-    private boolean isValidEmail(String email) {
-        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
-    }
-
-    private void saveLoginPreferences(String fullname, String email, String phoneNumber, boolean rememberMe) {
-        SharedPreferences.Editor editor = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit();
-        editor.putString(KEY_FULLNAME, fullname);
-        editor.putString(KEY_EMAIL, email);
-        editor.putString(KEY_PHONE_NUMBER, phoneNumber);
-        editor.putBoolean(KEY_REMEMBER_ME, rememberMe);
-        editor.apply();
-    }
-
-    private boolean loadLoginPreferences() {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        return sharedPreferences.getBoolean(KEY_REMEMBER_ME, false);
-    }
-
-    private void clearLoginPreferences() {
-        SharedPreferences.Editor editor = getSharedPreferences(PREF_NAME, MODE_PRIVATE).edit();
-        editor.clear().apply();
-    }
 }

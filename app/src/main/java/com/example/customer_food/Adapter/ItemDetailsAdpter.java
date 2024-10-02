@@ -36,8 +36,10 @@ public class ItemDetailsAdpter extends RecyclerView.Adapter<ItemDetailsAdpter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FoodItem item = itemList.get(position);
         holder.titleTextView.setText(item.getName());
-        holder.PriceTextView.setText(item.getName());
-        holder.imageView.setImageResource(item.getImageResource());
+        holder.PriceTextView.setText(String.valueOf(item.getPrice()));
+        holder.QuantiteTextView.setText(String.valueOf(item.getCount()));
+
+//        holder.imageView.setImageResource(item.getImageResource());
     }
 
     @Override
@@ -49,13 +51,14 @@ public class ItemDetailsAdpter extends RecyclerView.Adapter<ItemDetailsAdpter.Vi
 
         public TextView titleTextView;
         public TextView PriceTextView;
-
+        public TextView QuantiteTextView;
         public ImageView imageView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.name_user);
             PriceTextView = itemView.findViewById(R.id.place_user);
+            QuantiteTextView = itemView.findViewById(R.id.place_user1);
             imageView = itemView.findViewById(R.id.shapeableImageView);
         }
     }

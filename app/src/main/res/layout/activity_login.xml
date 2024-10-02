@@ -32,18 +32,6 @@
         android:layout_gravity="center_horizontal"
         android:paddingBottom="14dp" />
 
-    <EditText
-        android:id="@+id/etfullname"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/field_border"
-        android:hint="الاسم الكامل"
-        android:gravity="right"
-        android:fontFamily="@font/hacen_beirut_bight"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:padding="10dp" />
 
     <EditText
         android:id="@+id/etEmail"
@@ -59,15 +47,14 @@
         android:padding="10dp" />
 
     <EditText
-        android:id="@+id/etPhoneNumber"
+        android:id="@+id/etPassword"
         android:layout_width="match_parent"
         android:gravity="right"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:background="@drawable/field_border"
-        android:hint="رقم الهاتف"
-        android:maxLength="10"
-        android:inputType="phone"
+        android:hint="كلمة السر"
+        android:inputType="textPassword"
         android:minHeight="48dp"
         android:fontFamily="@font/hacen_beirut_bight"
         android:padding="10dp" />
@@ -93,6 +80,37 @@
         android:fontFamily="@font/hacen_beirut_bight"
         android:textStyle="bold"
         android:layout_marginBottom="10dp" />
+    <LinearLayout
+        android:id="@+id/categoriesLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="لا تملك حسابا ؟"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:layout_marginEnd="5dp"
+            android:textStyle="bold"
+            android:fontFamily="@font/hacen_beirut_bight"
+            />
+        <TextView
+            android:id="@+id/resendTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="تسجيل جديد"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/hacen_beirut_bight"
+            />
+
+
+    </LinearLayout>
+
 
 </LinearLayout>
 </ScrollView>
