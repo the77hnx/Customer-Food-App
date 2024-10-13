@@ -148,7 +148,7 @@ public class DeliveryActivity extends AppCompatActivity {
     }
 
     private void sendOrderToServer(int customerId, int deliveryWorkerId, Order order, String additionalInfomag, String additionalInfoliv, ArrayList<FoodItem> foodItems) {
-        String url = "http://192.168.1.33/fissa/Customer/Add_demande.php";
+        String url = "http://192.168.1.35/fissa/Customer/Add_demande.php";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,

@@ -117,7 +117,7 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void insertUserData(String fullName, String email, String phone, String password) {
-        String url = "http://192.168.1.34/fissa/Customer/Signup_User.php";
+        String url = "http://192.168.1.35/fissa/Customer/Signup_User.php";
 
         // Create a form body with the user data
         RequestBody formBody = new FormBody.Builder()

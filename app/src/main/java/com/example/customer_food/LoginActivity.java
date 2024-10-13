@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                             .build();
 
                     Request request = new Request.Builder()
-                            .url("http://192.168.1.34/fissa/Customer/Login.php")
+                            .url("http://192.168.1.35/fissa/Customer/Login.php")
                             .post(formBody)
                             .build();
 

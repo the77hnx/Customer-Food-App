@@ -183,7 +183,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updateUserData( String fullName,String email, String phone, String password, String address) {
-        String url = "http://192.168.1.34/fissa/Customer/Update_profile.php"; // Replace with your server's update URL
+        String url = "http://192.168.1.35/fissa/Customer/Update_profile.php"; // Replace with your server's update URL
 
         // Create form body with updated user data
         RequestBody formBody = new FormBody.Builder()
@@ -232,7 +232,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void fetchUserData() {
-        String url = "http://192.168.1.34/fissa/Customer/Get_profile.php";
+        String url = "http://192.168.1.35/fissa/Customer/Get_profile.php";
 
         Request request = new Request.Builder()
                 .url(url)

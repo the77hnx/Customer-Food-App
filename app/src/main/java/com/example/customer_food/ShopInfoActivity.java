@@ -129,7 +129,7 @@ public class ShopInfoActivity extends AppCompatActivity {
             protected String doInBackground(String... params) {
                 String result = "";
                 try {
-                    URL url = new URL("http://192.168.1.33/fissa/Customer/Magasin_Info.php");
+                    URL url = new URL("http://192.168.1.35/fissa/Customer/Magasin_Info.php");
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setDoOutput(true);

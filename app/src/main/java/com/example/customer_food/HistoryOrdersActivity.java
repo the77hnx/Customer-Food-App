@@ -77,7 +77,7 @@ public class HistoryOrdersActivity extends AppCompatActivity {
     }
 
     private void fetchOrders() {
-        String url = "http://192.168.1.34/fissa/Customer/History_orders.php"; // Ensure this URL is correct
+        String url = "http://192.168.1.35/fissa/Customer/History_orders.php"; // Ensure this URL is correct
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
