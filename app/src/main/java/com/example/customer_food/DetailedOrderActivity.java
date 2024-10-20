@@ -118,7 +118,7 @@ public class DetailedOrderActivity extends AppCompatActivity {
         }
 
         Request request = new Request.Builder()
-                .url("http://192.168.1.35/fissa/Customer/Details_order.php")
+                .url("http://192.168.1.34/fissa/Customer/Details_order.php")
                 .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonParams.toString()))
                 .build();
 
@@ -215,7 +215,7 @@ public class DetailedOrderActivity extends AppCompatActivity {
                 }
 
                 Request request = new Request.Builder()
-                        .url("http://192.168.1.35/fissa/Customer/Details_order.php")
+                        .url("http://192.168.1.34/fissa/Customer/Details_order.php")
                         .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), jsonParams.toString()))
                         .build();
 

@@ -17,6 +17,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.customer_food.DBHelper.DBHelper;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -78,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                             .build();
 
                     Request request = new Request.Builder()
-                            .url("http://192.168.1.35/fissa/Customer/Login.php")
+                            .url("http://192.168.1.34/fissa/Customer/Login.php")
                             .post(formBody)
                             .build();
 
@@ -100,7 +102,23 @@ public class LoginActivity extends AppCompatActivity {
 
                                     runOnUiThread(() -> {
                                         if (success) {
+                                            // تحقق من وجود "userId" في الرد
+                                            String userId = null;
+                                            if (jsonObject.has("userId")) {
+                                                // حفظ معرف المستخدم في قاعدة البيانات المحلية
+                                                try {
+                                                    userId = jsonObject.getString("userId");
+                                                } catch (JSONException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                                DBHelper dbHelper = new DBHelper(LoginActivity.this);
+                                                dbHelper.insertUserId(userId);
+                                            } else {
+                                                // إذا لم يكن معرف المستخدم موجودًا في الرد
+                                                Toast.makeText(LoginActivity.this, "User ID not found in server response", Toast.LENGTH_LONG).show();
+                                            }
                                             // If login is successful, navigate to the LocationActivity
+                                            Log.d("use id = ", userId);
                                             Intent intent = new Intent(LoginActivity.this, LocationActivity.class);
                                             startActivity(intent);
                                             finish();

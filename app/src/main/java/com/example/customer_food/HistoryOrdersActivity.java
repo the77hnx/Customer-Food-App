@@ -14,8 +14,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.customer_food.Adapter.HistoryOrderAdapter;
+import com.example.customer_food.DBHelper.DBHelper;
 import com.example.customer_food.Model.Order;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -28,8 +30,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 public class HistoryOrdersActivity extends AppCompatActivity {
 
@@ -37,6 +46,8 @@ public class HistoryOrdersActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private HistoryOrderAdapter adapter;
     private List<Order> orderList;
+    private OkHttpClient client;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,35 +83,53 @@ public class HistoryOrdersActivity extends AppCompatActivity {
         adapter = new HistoryOrderAdapter(this, orderList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        client = new OkHttpClient();
 
-        fetchOrders();
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
+
+        fetchOrders(userId);
     }
 
-    private void fetchOrders() {
-        String url = "http://192.168.1.35/fissa/Customer/History_orders.php"; // Ensure this URL is correct
+    private void fetchOrders(String userId) {
+        String url = "http://192.168.1.34/fissa/Customer/History_orders.php"; // Ensure this URL is correct
 
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        RequestBody postUserID = new FormBody.Builder()
+                .add("user_id", userId) // Use 'user_id' instead of 'userId'
+                .build();
 
-        // Create a JSON Array Request to fetch the data from the server
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(url)
+                .post(postUserID)
+                .build();
+
+        Log.d("request", String.valueOf(request));
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull okhttp3.Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Parse the JSON response
+                    String jsonResponse = response.body().string();
+                    runOnUiThread(() -> {
                         try {
+                            JSONObject jsonObject = new JSONObject(jsonResponse);
+                            JSONArray ordersArray = jsonObject.getJSONArray("orders"); // Get orders from the response
                             orderList.clear(); // Clear the existing orders
-                            for (int i = 0; i < response.length(); i++) {
-                                JSONObject jsonObject = response.getJSONObject(i);
+                            for (int i = 0; i < ordersArray.length(); i++) {
+                                JSONObject jsonOrder = ordersArray.getJSONObject(i);
 
                                 // Extract the data from the JSON object
-                                int orderId = jsonObject.getInt("orderId");
-                                String restaurantName = jsonObject.getString("storeName");
-                                double deliveryPrice = jsonObject.getDouble("deliveryPrice");
-                                double totalPrice = jsonObject.getDouble("orderPrice");
-                                String orderDate = jsonObject.getString("orderDate");
-                                String orderTime = jsonObject.getString("orderTime");
-                                String orderStatus = jsonObject.getString("statusName");
-                                String additionalInfomag = jsonObject.optString("additionalInfomag", "N/A");
-                                String additionalInfoliv = jsonObject.optString("additionalInfoliv", "N/A");
+                                int orderId = jsonOrder.getInt("orderId");
+                                String restaurantName = jsonOrder.getString("storeName");
+                                double deliveryPrice = jsonOrder.getDouble("deliveryPrice");
+                                double totalPrice = jsonOrder.getDouble("orderPrice");
+                                String orderDate = jsonOrder.getString("orderDate");
+                                String orderTime = jsonOrder.getString("orderTime");
+                                String orderStatus = jsonOrder.getString("statusName");
+                                String additionalInfomag = jsonOrder.optString("additionalInfomag", "N/A");
+                                String additionalInfoliv = jsonOrder.optString("additionalInfoliv", "N/A");
 
                                 // Create an Order object and add it to the order list
                                 Order order = new Order(orderId, restaurantName, deliveryPrice, totalPrice, orderDate, orderTime, orderStatus, additionalInfomag, additionalInfoliv);
@@ -113,17 +142,25 @@ public class HistoryOrdersActivity extends AppCompatActivity {
                             Log.e(TAG, "JSON parsing error: " + e.getMessage());
                             Toast.makeText(HistoryOrdersActivity.this, "Failed to parse data", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "Volley error: " + error.getMessage());
-                        Toast.makeText(HistoryOrdersActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(HistoryOrdersActivity.this, "Response was not successful", Toast.LENGTH_SHORT).show();
+                    });
+                    Log.e(TAG, "Response not successful: " + response.message());
+                }
+            }
 
-        // Add the request to the request queue
-        requestQueue.add(jsonArrayRequest);
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(HistoryOrdersActivity.this, "Failed to fetch user data", Toast.LENGTH_LONG).show();
+                });
+                Log.e("ProfileActivity", "Error: " + e.getMessage());
+            }
+
+        });
     }
+
+
 }

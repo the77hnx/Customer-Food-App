@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.customer_food.DBHelper.DBHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.json.JSONException;
@@ -38,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Button editBtn1, editBtn2, editBtn3, editBtnPassword, btnSave;
     private boolean isEditingName = false, isEditingDescription = false, isEditingAddress = false, isEditingPassword = false;
     private OkHttpClient client;
+
 
 
     @Override
@@ -110,6 +112,12 @@ public class ProfileActivity extends AppCompatActivity {
             isEditingPassword = !isEditingPassword;
         });
 
+
+        DBHelper dbHelper = new DBHelper(this);
+        String userId = dbHelper.getUserId();
+        Log.d("user id = ", userId) ;
+
+
         // Save button listener
         btnSave.setOnClickListener(v -> {
             saveAllEdits();
@@ -118,11 +126,11 @@ public class ProfileActivity extends AppCompatActivity {
             String phone = addressTextView.getText().toString();
             String password = passwordTextView.getText().toString();
             String address = editGPStext.getText().toString();
-            updateUserData(fullName, email,phone, password, address);
+            updateUserData(fullName, email,phone, password, address, userId);
         });
 
         // Fetch and display user data
-        fetchUserData();
+        fetchUserData(userId);
     }
 
     private void toggleEditText(EditText editText, TextView textView, Button button, boolean isEditing) {
@@ -182,11 +190,12 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void updateUserData( String fullName,String email, String phone, String password, String address) {
-        String url = "http://192.168.1.35/fissa/Customer/Update_profile.php"; // Replace with your server's update URL
+    private void updateUserData( String fullName,String email, String phone, String password, String address, String userId) {
+        String url = "http://192.168.1.34/fissa/Customer/Update_profile.php"; // Replace with your server's update URL
 
         // Create form body with updated user data
         RequestBody formBody = new FormBody.Builder()
+                .add("user_id", userId)
                 .add("fullName", fullName)
                 .add("email", email)
                 .add("phone", phone)
@@ -231,12 +240,19 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchUserData() {
-        String url = "http://192.168.1.35/fissa/Customer/Get_profile.php";
+    private void fetchUserData(String userId) {
+        String url = "http://192.168.1.34/fissa/Customer/Get_profile.php";
+
+        RequestBody PostuserID = new FormBody.Builder()
+                .add("user_id", userId) // استخدام 'user_id' بدلاً من 'userId'
+                .build();
 
         Request request = new Request.Builder()
                 .url(url)
+                .post(PostuserID)
                 .build();
+
+        Log.d("request", String.valueOf(request));
 
         client.newCall(request).enqueue(new Callback() {
             @Override

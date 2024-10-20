@@ -24,6 +24,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.customer_food.DBHelper.DBHelper;
 import com.example.customer_food.Model.FoodItem;
 import com.example.customer_food.Model.Order;
 
@@ -43,7 +44,7 @@ public class DeliveryActivity extends AppCompatActivity {
     private TextView totalWithDeliveryTextView;
     private EditText textAdditionalDescriptionmag, textAdditionalDescriptionliv;
     private Button confirmButton;
-    int customerId = 17, deliveryWorkerId = 1;
+    int customerId , deliveryWorkerId ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +109,11 @@ public class DeliveryActivity extends AppCompatActivity {
             double deliveryPrice = Double.parseDouble(deliveryPriceString);
             String orderStatus = "Pending";
             int orderId = getUserOrderNumber();
+            DBHelper dbHelper = new DBHelper(this);
+
+            String userId = dbHelper.getUserId();
+            Log.d("user id = ", userId) ;
+            customerId = Integer.parseInt(userId);
 
             Order newOrder = new Order(orderId, restaurantName, deliveryPrice, totalPrice, "", "", orderStatus, additionalInfomag, additionalInfoliv);
             sendOrderToServer(customerId, deliveryWorkerId, newOrder, additionalInfomag, additionalInfoliv, foodItems);
@@ -148,7 +154,7 @@ public class DeliveryActivity extends AppCompatActivity {
     }
 
     private void sendOrderToServer(int customerId, int deliveryWorkerId, Order order, String additionalInfomag, String additionalInfoliv, ArrayList<FoodItem> foodItems) {
-        String url = "http://192.168.1.35/fissa/Customer/Add_demande.php";
+        String url = "http://192.168.1.34/fissa/Customer/Add_demande.php";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,

@@ -559,7 +559,7 @@ public class ShopsActivity extends AppCompatActivity {
 //    }
 
     private void fetchRestaurantAndCategoryData() {
-        String url = "http://192.168.1.35/fissa/Customer/Fetch_restaurants.php";
+        String url = "http://192.168.1.34/fissa/Customer/Fetch_restaurants.php";
         Request request = new Request.Builder().url(url).build();
 
         client.newCall(request).enqueue(new Callback() {
